@@ -1,23 +1,100 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import Navbar from "./components/navbar";
+import Loader from "./components/loader";
+import Card from "./components/card";
+
 
 function App() {
+
+  // state
+  const [videosData, setVideosData] = useState([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+  const [limit,setLimit] = useState(9)
+
+
+  useEffect(() => {
+    handleSearch()
+  },[searchQuery])
+
+  async function handleSearch() {
+    setLimit(9)
+    if (searchQuery !== "") {
+      try {
+        setLoading(true)
+        let res = await fetch(`https://asia-south1-socialboat-dev.cloudfunctions.net/assignmentVideos?q=${searchQuery}&numResults=100`)
+  
+        let data = await res.json()
+        if (data.status === "success") {
+    
+          setLoading(false)
+          setVideosData(data.results)
+          
+        } else {
+          setLoading(false)
+          setError(true)
+        }
+        
+      } catch (error) {
+        setLoading(false)
+        setError(true)
+        
+      }
+    } else {
+      setLoading(false)
+      setError(false)
+      setVideosData([])
+   }
+  }
+  
+  function handleSeeMore() {
+    if (limit + 9 >= 100) {
+      
+    } else {
+      
+    }
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery} />
+      
+      <div className="container">
+  {loading ? (
+    <Loader />
+  ) : (
+
+              videosData.length > 0 ? (
+              <>
+                  <div className="row">{
+                  videosData
+                    .filter((video, i) => i < limit)
+                    .map((video, i) => (
+                      <Card
+                        key={i}
+                        video={video.video}
+                        heading={video.heading}
+                        tags={video.tags}
+                      />
+                    ))}
+                </div>
+                {limit + 9 <= 100? <button className="d-grid col-6 btn btn-primary m-auto mt-2"  onClick={()=>{setLimit((prev)=>prev+9)}}>see more</button> : <div className="text-center fs-1 fw-bold">
+          <div>No more videos</div>
+        </div>}
+             
+              </>
+      ) : (
+        <div className="text-center fs-1 fw-bold">
+          <div>Search for videos</div>
+        </div>
+      )
+  
+  )}
+</div>
+
+    
     </div>
   );
 }
