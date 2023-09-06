@@ -11,23 +11,22 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  const [limit,setLimit] = useState(9)
+  const [limit, setLimit] = useState(9)
 
 
   useEffect(() => {
     handleSearch()
-  },[searchQuery])
+  }, [searchQuery])
 
   async function handleSearch() {
     setLimit(9)
     if (searchQuery !== "") {
       try {
         setLoading(true)
-        let res = await fetch(`https://asia-south1-socialboat-dev.cloudfunctions.net/assignmentVideos?q=${searchQuery}&numResults=100`)
+        let res = await fetch(`https://asia-south1-socialboat-dev.cloudfunctions.net/assignmentVideos?q=${searchQuery}&numResults=20`)
   
         let data = await res.json()
         if (data.status === "success") {
-    
           setLoading(false)
           setVideosData(data.results)
           
@@ -45,56 +44,51 @@ function App() {
       setLoading(false)
       setError(false)
       setVideosData([])
-   }
-  }
-  
-  function handleSeeMore() {
-    if (limit + 9 >= 100) {
-      
-    } else {
-      
     }
   }
-
+  
   return (
     <div className="App">
-      <Navbar searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery} />
-      
-      <div className="container">
-  {loading ? (
-    <Loader />
-  ) : (
-
-              videosData.length > 0 ? (
-              <>
-                  <div className="row">{
-                  videosData
-                    .filter((video, i) => i < limit)
-                    .map((video, i) => (
-                      <Card
-                        key={i}
-                        video={video.video}
-                        heading={video.heading}
-                        tags={video.tags}
-                      />
-                    ))}
-                </div>
-                {limit + 9 <= 100? <button className="d-grid col-6 btn btn-primary m-auto mt-2"  onClick={()=>{setLimit((prev)=>prev+9)}}>see more</button> : <div className="text-center fs-1 fw-bold">
-          <div>No more videos</div>
-        </div>}
-             
-              </>
-      ) : (
-        <div className="text-center fs-1 fw-bold">
-          <div>Search for videos</div>
-        </div>
-      )
+      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
   
-  )}
-</div>
-
-    
+      <div className="container">
+        {loading ? (
+          <Loader />
+        ) : videosData.length > 0 ? (
+          <>
+            <div className="row">
+              {videosData
+                .filter((video, i) => i < limit)
+                .map((video, i) => (
+                  <Card
+                    key={i}
+                    video={video.video}
+                    heading={video.heading}
+                    tags={video.tags}
+                  />
+                ))}
+            </div>
+            {limit + 9 <= 20 ? (
+              <button
+                className="d-grid col-6 btn btn-outline-primary m-auto mt-2 mb-2"
+                onClick={() => {
+                  setLimit((prev) => prev + 9);
+                }}
+              >
+                Show More
+              </button>
+            ) : (
+              <div className="text-center fs-1 fw-bold">
+                <div>No more videos</div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center fs-1 fw-bold">
+            <div>Search for videos</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
