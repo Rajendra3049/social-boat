@@ -12,10 +12,17 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [limit, setLimit] = useState(9)
+  const [searchId,setSearchId]=useState(null)
 
 
   useEffect(() => {
-    handleSearch()
+    if (searchId) {
+      clearTimeout(searchId)
+  }
+    setSearchId(setTimeout(() => {
+      handleSearch()
+   },500))
+  
   }, [searchQuery])
 
   async function handleSearch() {
